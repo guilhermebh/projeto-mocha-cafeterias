@@ -2,7 +2,7 @@ import sqlite3
 from flask import Flask, render_template, jsonify, request
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
 # Use /tmp for database on Vercel/Production to avoid Read-Only filesystem errors
 if os.environ.get('VERCEL'):
