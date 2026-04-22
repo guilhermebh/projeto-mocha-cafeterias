@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2? family= Poppins:wght@100;200;300;400;500;600;700 & family= Areia movediça:wght@300;400; 500;600;700 & display=trocar');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #e3deca;
+    text-decoration: none;
+}
+
+nav{
+    display: flex;
+    justify-content: space-around;
+    font-family: 'Poppins';
+    align-items: first baseline;
+    
+    
+}
+
+.nav-itens {
+    list-style: none;
+    display: flex;
+    
+      
+}
+
+.nav-itens>li>a{
+    padding-left: 30px;
+    color: #3c3a1e;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 200;
+    font-size: 16px;
+    margin-top: 20px;
+    
+}
+
+.logo h1{
+    padding: 20px;
+    font-size: 60px;
+    font-weight: 700;
+    color: #5c2c0c;
+    letter-spacing: 5px;
+}
+
+.logo h2{
+    padding: 40px;
+    font-size: 15px;
+    font-weight: 100;
+    color: #3c3a1e;
+    margin-top: -70px;
+    letter-spacing: 8px;
+}
