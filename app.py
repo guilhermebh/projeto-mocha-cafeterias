@@ -4,9 +4,14 @@ import os
 
 app = Flask(__name__)
 
-DB_NAME = "mocha.db"
+# Use /tmp for database on Vercel/Production to avoid Read-Only filesystem errors
+if os.environ.get('VERCEL'):
+    DB_NAME = "/tmp/mocha.db"
+else:
+    DB_NAME = "mocha.db"
 
 def init_db():
+    # Only initialize if it's a new file
     if not os.path.exists(DB_NAME):
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
@@ -33,6 +38,7 @@ def init_db():
         conn.commit()
         conn.close()
 
+# Initialize DB on startup
 init_db()
 
 def get_db_connection():
