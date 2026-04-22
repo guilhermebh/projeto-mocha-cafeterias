@@ -1,50 +1,27 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Mocha | Premium Coffee Experience</title>
-    <meta name="description" content="Descubra as melhores cafeterias com Mocha. Uma experiência premium.">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
-</head>
-<body class="dark-theme">
-    
-    <div class="hero-container">
-        <!-- We use a subtle dark gradient overlay over a coffee image or video -->
-        <div class="overlay"></div>
-        <div class="video-container">
-            <video autoplay loop muted class="back-video">
-                <source src="{{ url_for('static', filename='assets/Video by Kelly     httpswww.pexels.comvideocoffee-beans-in-a-glass-container-2849954.mp4') }}" type="video/mp4">
-            </video>
-        </div>
+{% extends "base.html" %}
 
-        <nav class="glass-nav">
-            <div class="logo">
-                <i class='bx bx-coffee-togo'></i>
-                <span>MOCHA</span>
-            </div>                              
-            <ul class="nav-links">
-                <li><a href="{{ url_for('index') }}" class="active">Home</a></li>
-                <li><a href="{{ url_for('cafes') }}">Cafeterias</a></li>
-                <li><a href="{{ url_for('sobre') }}">Sobre Nós</a></li>
-            </ul>                
-        </nav>
-        
-        <div class="hero-content fade-in-up">
-            <h1>A Arte do <span class="highlight">Café</span></h1>
-            <p>Descubra experiências sensoriais únicas nas melhores cafeterias de Belo Horizonte.</p>
-            <a href="{{ url_for('cafes') }}" class="cta-button">
-                Explorar Rota <i class='bx bx-right-arrow-alt'></i>
-            </a>
-        </div>
+{% block title %}Mocha | Premium Coffee Experience{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <!-- We use a subtle dark gradient overlay over a coffee image or video -->
+    <div class="overlay"></div>
+    <div class="video-container">
+        <video autoplay loop muted class="back-video">
+            <source src="{{ url_for('static', filename='assets/Video by Kelly     httpswww.pexels.comvideocoffee-beans-in-a-glass-container-2849954.mp4') }}" type="video/mp4">
+        </video>
     </div>
-    
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>    
-</body>
-</html>
+
+    <div class="hero-content fade-in-up">
+        <h1>A Arte do <span class="highlight">Café</span></h1>
+        <p>Descubra experiências sensoriais únicas nas melhores cafeterias de Belo Horizonte.</p>
+        <a href="{{ url_for('cafes') }}" class="cta-button">
+            Explorar Rota <i class='bx bx-right-arrow-alt'></i>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{# No footer on landing page to keep it clean, or we can keep it. The user had no footer in original index.html #}
+{% endblock %}
