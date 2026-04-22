@@ -80,3 +80,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 geoStatus.style.color = "#e74c3c";
             }
         );
+    } else {
+        geoStatus.innerHTML = `<i class='bx bx-error-circle'></i> Geolocalização não suportada.`;
+    }
+
+    // Listen for location selections from script.js (Google Places)
+    window.addEventListener('locationSelected', (e) => {
+        const { lat, lng, name } = e.detail;
+        map.setView([lat, lng], 14);
+        
+        // Add a temporary marker for the searched location
+        L.marker([lat, lng], {icon: userIcon}).addTo(map)
+            .bindPopup(`<b>${name}</b>`)
+            .openPopup();
+    });
+});
