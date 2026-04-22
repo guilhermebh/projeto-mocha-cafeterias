@@ -4,14 +4,17 @@
 
 {% block content %}
 <div class="hero-container">
-    <!-- We use a subtle dark gradient overlay over a coffee image or video -->
+    <!-- Overlay for better text readability -->
     <div class="overlay"></div>
+    
+    <!-- Background Video -->
     <div class="video-container">
-        <video autoplay loop muted class="back-video">
+        <video autoplay loop muted playsinline class="back-video">
             <source src="{{ url_for('static', filename='assets/Video by Kelly     httpswww.pexels.comvideocoffee-beans-in-a-glass-container-2849954.mp4') }}" type="video/mp4">
         </video>
     </div>
 
+    <!-- Hero Content -->
     <div class="hero-content fade-in-up">
         <h1>A Arte do <span class="highlight">Café</span></h1>
         <p>Descubra experiências sensoriais únicas nas melhores cafeterias de Belo Horizonte.</p>
@@ -23,5 +26,5 @@
 {% endblock %}
 
 {% block footer %}
-{# No footer on landing page to keep it clean, or we can keep it. The user had no footer in original index.html #}
+{# O rodapé é omitido na home para manter o foco no visual hero #}
 {% endblock %}

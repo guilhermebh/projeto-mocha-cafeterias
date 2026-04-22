@@ -39,62 +39,63 @@ const MochaApp = (() => {
     };
 
     /**
-     * Performs a nearby search for coffee shops and filters by rating
+     * Performs a search for cafes and pastry shops, filtering by rating > 3.8
      */
-    const searchNearbyCafes = (lat, lng) => {
+    const searchNearbyCafes = (lat, lng, isNeighborhood = false) => {
         if (!placesService) {
-            // Create a dummy div for PlacesService if not on a Google Map
             const dummyDiv = document.createElement('div');
             placesService = new google.maps.places.PlacesService(dummyDiv);
         }
 
+        // Use a smaller radius for neighborhoods to keep results local
+        const radius = isNeighborhood ? '1500' : '3000';
+
         const request = {
             location: new google.maps.LatLng(lat, lng),
-            radius: '3000', // 3km radius
-            type: ['cafe'],
-            keyword: 'cafeteria coffee'
+            radius: radius,
+            type: ['cafe', 'bakery'],
+            keyword: 'cafeteria coffee doceria confeitaria'
         };
 
         placesService.nearbySearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
-                // Filter results with rating > 4
-                const topRatedCafes = results.filter(place => place.rating && place.rating >= 4);
+                // Filter results with rating > 3.8
+                const filteredResults = results.filter(place => place.rating && place.rating >= 3.8);
                 
-                // Dispatch event with the new cafes
                 const event = new CustomEvent('cafesFound', {
                     detail: { 
-                        cafes: topRatedCafes.map(p => ({
+                        cafes: filteredResults.map(p => ({
                             name: p.name,
                             lat: p.geometry.location.lat(),
                             lng: p.geometry.location.lng(),
                             address: p.vicinity,
                             rating: p.rating,
                             image_url: p.photos ? p.photos[0].getUrl({maxWidth: 400}) : '/static/assets/cafe1.jpg',
-                            description: 'Cafeteria encontrada via Google Maps.'
+                            description: p.types.includes('bakery') ? 'Doceria / Confeitaria selecionada.' : 'Cafeteria premium selecionada.'
                         }))
                     }
                 });
                 window.dispatchEvent(event);
             } else {
-                console.warn('Google Places search failed or no results found:', status);
+                console.warn('Google Places search failed:', status);
+                // Dispatch empty results if none found
+                window.dispatchEvent(new CustomEvent('cafesFound', { detail: { cafes: [] } }));
             }
         });
     };
 
     /**
-     * Initializes Google Places Autocomplete for location search
+     * Initializes Google Places Autocomplete
      */
     const initLocationSearch = () => {
         const searchInput = document.querySelector(CONFIG.selectors.locationSearch);
         if (!searchInput || typeof google === 'undefined') return;
 
-        // Initialize Google Autocomplete
         const autocomplete = new google.maps.places.Autocomplete(searchInput, {
-            types: ['(regions)'], // Allows neighborhoods and cities
+            types: ['geocode'], // Allows neighborhoods (sublocality) and addresses
             componentRestrictions: { country: 'br' }
         });
 
-        // When user selects a place
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
             
@@ -102,14 +103,15 @@ const MochaApp = (() => {
 
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
+            
+            // Check if the selected place is a neighborhood or specific locality
+            const isNeighborhood = place.types.includes('sublocality') || place.types.includes('neighborhood');
 
-            // 1. Center map
             window.dispatchEvent(new CustomEvent('locationSelected', {
                 detail: { lat, lng, name: place.name }
             }));
 
-            // 2. Search for cafes in this area
-            searchNearbyCafes(lat, lng);
+            searchNearbyCafes(lat, lng, isNeighborhood);
         });
     };
 
@@ -118,18 +120,15 @@ const MochaApp = (() => {
      */
     const init = () => {
         handleNavbarScroll();
-
         window.addEventListener('scroll', () => {
             window.requestAnimationFrame(handleNavbarScroll);
         }, { passive: true });
 
         initLocationSearch();
-
         console.log('☕ Mocha Premium Experience Initialized');
     };
 
     return { init };
 })();
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', MochaApp.init);
