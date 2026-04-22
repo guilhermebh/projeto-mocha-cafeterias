@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Initialize map, centered roughly on Belo Horizonte
+    // Initialize map
     const map = L.map('map').setView([-19.9167, -43.9345], 13);
     
     // Custom dark map tile
@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         maxZoom: 20
     }).addTo(map);
 
-    // Custom Icon for Cafes
+    // Icons
     const cafeIcon = L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
         shadowSize: [41, 41]
     });
 
-    // Custom Icon for User
     const userIcon = L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -29,69 +28,96 @@ document.addEventListener("DOMContentLoaded", () => {
         shadowSize: [41, 41]
     });
 
-    const markers = {};
+    let currentMarkers = [];
+    const listContainer = document.getElementById('cafes-list');
 
-    // Get all cafe cards
-    const cafeCards = document.querySelectorAll('.cafe-card');
+    /**
+     * Renders a list of cafes in the sidebar and on the map
+     */
+    const renderCafes = (cafes) => {
+        // Clear existing markers
+        currentMarkers.forEach(m => map.removeLayer(m));
+        currentMarkers = [];
+
+        // Clear sidebar list
+        listContainer.innerHTML = '';
+
+        cafes.forEach(cafe => {
+            // Add Marker
+            const marker = L.marker([cafe.lat, cafe.lng], {icon: cafeIcon}).addTo(map)
+                .bindPopup(`<b>${cafe.name}</b><br>${cafe.rating} ★`);
+            currentMarkers.push(marker);
+
+            // Add Sidebar Card
+            const card = document.createElement('div');
+            card.className = 'cafe-card fade-in-up';
+            card.innerHTML = `
+                <img src="${cafe.image_url}" alt="${cafe.name}" class="cafe-image">
+                <div class="cafe-info">
+                    <h3>${cafe.name}</h3>
+                    <p class="desc">${cafe.description}</p>
+                    <p class="addr"><i class='bx bx-map'></i> ${cafe.address}</p>
+                    <div class="rating">
+                        <i class='bx bxs-star'></i> <span>${cafe.rating}</span>
+                    </div>
+                </div>
+            `;
+
+            card.addEventListener('mouseenter', () => marker.openPopup());
+            card.addEventListener('click', () => {
+                map.setView([cafe.lat, cafe.lng], 16);
+                marker.openPopup();
+            });
+
+            listContainer.appendChild(card);
+        });
+    };
+
+    // Initial render from server-side data (if any)
+    const initialCafes = Array.from(document.querySelectorAll('.cafe-card')).map(card => ({
+        name: card.querySelector('h3').innerText,
+        lat: parseFloat(card.getAttribute('data-lat')),
+        lng: parseFloat(card.getAttribute('data-lng')),
+        description: card.querySelector('.desc').innerText,
+        address: card.querySelector('.addr').innerText,
+        rating: card.querySelector('.rating span').innerText,
+        image_url: card.querySelector('img').src
+    }));
     
-    cafeCards.forEach(card => {
-        const lat = parseFloat(card.getAttribute('data-lat'));
-        const lng = parseFloat(card.getAttribute('data-lng'));
-        const name = card.getAttribute('data-name');
-        
-        // Add marker to map
-        const marker = L.marker([lat, lng], {icon: cafeIcon}).addTo(map)
-            .bindPopup(`<b>${name}</b>`);
-            
-        markers[name] = marker;
+    // Clear the static HTML and re-render dynamically to set up markers
+    if (initialCafes.length > 0) renderCafes(initialCafes);
 
-        // Hover effect to highlight marker
-        card.addEventListener('mouseenter', () => {
-            marker.openPopup();
-        });
-        
-        // Click to zoom
-        card.addEventListener('click', () => {
-            map.setView([lat, lng], 16);
-            marker.openPopup();
-        });
+    // Listen for new cafes found via Google Places search
+    window.addEventListener('cafesFound', (e) => {
+        renderCafes(e.detail.cafes);
     });
 
-    // Geolocation API
+    // Listen for location selections
+    window.addEventListener('locationSelected', (e) => {
+        const { lat, lng, name } = e.detail;
+        map.setView([lat, lng], 14);
+        L.marker([lat, lng], {icon: userIcon}).addTo(map)
+            .bindPopup(`<b>Busca: ${name}</b>`)
+            .openPopup();
+    });
+
+    // Native Geolocation
     const geoStatus = document.getElementById("geolocation-status");
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
-                
                 geoStatus.innerHTML = `<i class='bx bx-check-circle'></i> Localização encontrada!`;
                 geoStatus.style.color = "#2ecc71";
-
-                // Add user marker
                 L.marker([userLat, userLng], {icon: userIcon}).addTo(map)
                     .bindPopup("<b>Você está aqui</b>").openPopup();
-                
-                // Adjust map bounds to include user and some cafes (simplified to just re-center for now)
                 map.setView([userLat, userLng], 13);
             },
-            (error) => {
-                geoStatus.innerHTML = `<i class='bx bx-error-circle'></i> Permissão de localização negada ou indisponível.`;
+            () => {
+                geoStatus.innerHTML = `<i class='bx bx-error-circle'></i> Localização indisponível.`;
                 geoStatus.style.color = "#e74c3c";
             }
         );
-    } else {
-        geoStatus.innerHTML = `<i class='bx bx-error-circle'></i> Geolocalização não suportada.`;
     }
-
-    // Listen for location selections from script.js (Google Places)
-    window.addEventListener('locationSelected', (e) => {
-        const { lat, lng, name } = e.detail;
-        map.setView([lat, lng], 14);
-        
-        // Add a temporary marker for the searched location
-        L.marker([lat, lng], {icon: userIcon}).addTo(map)
-            .bindPopup(`<b>${name}</b>`)
-            .openPopup();
-    });
 });

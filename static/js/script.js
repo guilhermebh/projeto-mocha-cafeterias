@@ -18,6 +18,7 @@ const MochaApp = (() => {
 
     // State
     let isScrolled = false;
+    let placesService = null;
 
     /**
      * Handles the navbar scroll effect using requestAnimationFrame
@@ -38,6 +39,49 @@ const MochaApp = (() => {
     };
 
     /**
+     * Performs a nearby search for coffee shops and filters by rating
+     */
+    const searchNearbyCafes = (lat, lng) => {
+        if (!placesService) {
+            // Create a dummy div for PlacesService if not on a Google Map
+            const dummyDiv = document.createElement('div');
+            placesService = new google.maps.places.PlacesService(dummyDiv);
+        }
+
+        const request = {
+            location: new google.maps.LatLng(lat, lng),
+            radius: '3000', // 3km radius
+            type: ['cafe'],
+            keyword: 'cafeteria coffee'
+        };
+
+        placesService.nearbySearch(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                // Filter results with rating > 4
+                const topRatedCafes = results.filter(place => place.rating && place.rating >= 4);
+                
+                // Dispatch event with the new cafes
+                const event = new CustomEvent('cafesFound', {
+                    detail: { 
+                        cafes: topRatedCafes.map(p => ({
+                            name: p.name,
+                            lat: p.geometry.location.lat(),
+                            lng: p.geometry.location.lng(),
+                            address: p.vicinity,
+                            rating: p.rating,
+                            image_url: p.photos ? p.photos[0].getUrl({maxWidth: 400}) : '/static/assets/cafe1.jpg',
+                            description: 'Cafeteria encontrada via Google Maps.'
+                        }))
+                    }
+                });
+                window.dispatchEvent(event);
+            } else {
+                console.warn('Google Places search failed or no results found:', status);
+            }
+        });
+    };
+
+    /**
      * Initializes Google Places Autocomplete for location search
      */
     const initLocationSearch = () => {
@@ -46,27 +90,26 @@ const MochaApp = (() => {
 
         // Initialize Google Autocomplete
         const autocomplete = new google.maps.places.Autocomplete(searchInput, {
-            types: ['(cities)'],
-            componentRestrictions: { country: 'br' } // Restricted to Brazil
+            types: ['(regions)'], // Allows neighborhoods and cities
+            componentRestrictions: { country: 'br' }
         });
 
         // When user selects a place
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
             
-            if (!place.geometry || !place.geometry.location) {
-                console.error("Lugar não encontrado ou sem coordenadas.");
-                return;
-            }
+            if (!place.geometry || !place.geometry.location) return;
 
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
 
-            // Dispatch a custom event so other scripts (like cafes.js) can react
-            const event = new CustomEvent('locationSelected', {
+            // 1. Center map
+            window.dispatchEvent(new CustomEvent('locationSelected', {
                 detail: { lat, lng, name: place.name }
-            });
-            window.dispatchEvent(event);
+            }));
+
+            // 2. Search for cafes in this area
+            searchNearbyCafes(lat, lng);
         });
     };
 
@@ -74,15 +117,12 @@ const MochaApp = (() => {
      * Initializes the application modules
      */
     const init = () => {
-        // Initial check on load
         handleNavbarScroll();
 
-        // Navbar Scroll Listener
         window.addEventListener('scroll', () => {
             window.requestAnimationFrame(handleNavbarScroll);
         }, { passive: true });
 
-        // Initialize Geolocation Search if on the correct page
         initLocationSearch();
 
         console.log('☕ Mocha Premium Experience Initialized');
