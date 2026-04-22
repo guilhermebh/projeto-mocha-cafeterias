@@ -15,6 +15,13 @@
         <h1 class="title">Roteiro do <span class="highlight">Café</span></h1>
         <p class="subtitle">Encontre as melhores experiências perto de você.</p>
         
+        <div class="search-box mb-2">
+            <div class="input-group">
+                <i class='bx bx-search'></i>
+                <input type="text" id="location-search" placeholder="Buscar cidade ou endereço...">
+            </div>
+        </div>
+
         <div id="geolocation-status" class="geo-status">
             <i class='bx bx-current-location bx-spin'></i> Obtendo sua localização...
         </div>
@@ -43,6 +50,8 @@
 
 {% block extra_js %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Google Places API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDe4sqhCuruut3mSkJJGLdNkIj968RIzF0&libraries=places"></script>
 <script src="{{ url_for('static', filename='js/cafes.js') }}"></script>
 {% endblock %}
 

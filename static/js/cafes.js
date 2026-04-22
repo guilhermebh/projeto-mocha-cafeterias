@@ -80,7 +80,3 @@ document.addEventListener("DOMContentLoaded", () => {
                 geoStatus.style.color = "#e74c3c";
             }
         );
-    } else {
-        geoStatus.innerHTML = `<i class='bx bx-error-circle'></i> Geolocalização não suportada.`;
-    }
-});
