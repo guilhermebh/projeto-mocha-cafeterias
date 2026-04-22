@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeterias | Mocha</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cafes.css') }}">
+</head>
+<body class="dark-theme page-cafes">
+
+    <nav class="glass-nav">
+        <div class="logo">
+            <i class='bx bx-coffee-togo'></i>
+            <span>MOCHA</span>
+        </div>                              
+        <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('cafes') }}" class="active">Cafeterias</a></li>
+            <li><a href="{{ url_for('sobre') }}">Sobre Nós</a></li>
+        </ul>                
+    </nav>
+
+    <div class="cafes-container">
+        <div class="sidebar fade-in-up">
+            <h1 class="title">Roteiro do <span class="highlight">Café</span></h1>
+            <p class="subtitle">Encontre as melhores experiências perto de você.</p>
+            
+            <div id="geolocation-status" class="geo-status">
+                <i class='bx bx-current-location bx-spin'></i> Obtendo sua localização...
+            </div>
+
+            <div class="cafes-list" id="cafes-list">
+                {% for cafe in cafes %}
+                <div class="cafe-card" data-lat="{{ cafe.lat }}" data-lng="{{ cafe.lng }}" data-name="{{ cafe.name }}">
+                    <img src="{{ cafe.image_url }}" alt="{{ cafe.name }}" class="cafe-image">
+                    <div class="cafe-info">
+                        <h3>{{ cafe.name }}</h3>
+                        <p class="desc">{{ cafe.description }}</p>
+                        <p class="addr"><i class='bx bx-map'></i> {{ cafe.address }}</p>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i> <span>{{ cafe.rating }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/cafes.js') }}"></script>
+</body>
+</html>

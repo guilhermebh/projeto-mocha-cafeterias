@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nossa História | Mocha</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sobre.css') }}">
+</head>
+<body class="dark-theme">
+
+    <nav class="glass-nav">
+        <div class="logo">
+            <i class='bx bx-coffee-togo'></i>
+            <span>MOCHA</span>
+        </div>                              
+        <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('cafes') }}">Cafeterias</a></li>
+            <li><a href="{{ url_for('sobre') }}" class="active">Sobre Nós</a></li>
+        </ul>                
+    </nav>
+
+    <section class="about-section">
+        <div class="about-container">
+            <div class="about-text fade-in-up">
+                <h1 class="title">A Nossa <span class="highlight">História</span></h1>
+                
+                <p>Bem-vindo ao mundo dos amantes de café! Eu sou Guilherme Gonçalves, um cara apaixonado por duas coisas: tecnologia e café. Minha história começa com a ideia de unir essas duas paixões para criar uma experiência única para todos os aficionados por café aqui em Beagá!</p>
+                
+                <p>Como um amante da tecnologia e do café que acredita que a vida é muito curta para se contentar com um café comum. Combinei minha experiência em design de UX, UI e desenvolvimento web para criar uma plataforma que torna mais fácil do que nunca encontrar as melhores cafeterias na cidade.</p>
+                
+                <p>Minha ideia é simples: facilitar a sua jornada de descoberta de cafeterias incríveis e experiências de cafés memoráveis. Sim! Quero ajudar você a encontrar aquele lugar especial onde o café é mais do que apenas uma bebida - é uma paixão, uma arte, um estilo de vida.</p>
+                
+                <p>O aroma de um espresso acabado de fazer, a textura perfeita de um cappuccino, a atmosfera acolhedora de uma cafeteria local - essas são as coisas que nos inspiram. Quero compartilhar esse amor pelo café com você, ajudando-o a descobrir novos lugares, criar momentos incríveis e compartilhar suas próprias experiências com outros amantes de café.</p>
+                
+                <p>Estou entusiasmado por você estar aqui e espero que minha aplicação web o ajude a explorar o vibrante cenário de café em Belo Horizonte. Vamos nos juntar nesta jornada de sabor, aroma e descoberta. Sua próxima xícara perfeita de café está apenas a um clique de distância!</p>
+                
+                <p class="signature">Seja bem-vindo à nossa comunidade de amantes de café, onde a tecnologia e a paixão pelo café se encontram.</p>
+            </div>
+            
+            <div class="about-image fade-in-up" style="animation-delay: 0.3s;">
+                <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Café e Laptop">
+                <div class="image-overlay"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <i class='bx bx-coffee bx-tada'></i> Desenvolvido com paixão e cafeína.
+    </footer>
+
+</body>
+</html>
