@@ -65,6 +65,67 @@
     box-shadow: 0 0 10px rgba(212, 163, 115, 0.2);
 }
 
+/* Neighborhood Dropdown Styles */
+.neighborhood-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgba(30, 30, 32, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0 0 16px 16px;
+    margin-top: 5px;
+    z-index: 100;
+    display: none;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+    animation: fadeInDown 0.3s ease;
+}
+
+.neighborhood-dropdown.active {
+    display: block;
+}
+
+.dropdown-header {
+    padding: 12px 20px;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+}
+
+.neighborhood-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.neighborhood-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    color: #ddd;
+    font-size: 0.95rem;
+}
+
+.neighborhood-item:hover {
+    background: rgba(212, 163, 115, 0.15);
+    color: var(--primary-color);
+    padding-left: 25px;
+}
+
+.neighborhood-item:not(:last-child) {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .geo-status {
     padding: 15px;
     background: var(--bg-card);

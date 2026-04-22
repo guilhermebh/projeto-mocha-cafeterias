@@ -8,17 +8,21 @@ const MochaApp = (() => {
     const CONFIG = {
         scrollThreshold: 50,
         classes: {
-            scrolled: 'scrolled'
+            scrolled: 'scrolled',
+            active: 'active'
         },
         selectors: {
             nav: '.glass-nav',
-            locationSearch: '#location-search'
+            locationSearch: '#location-search',
+            dropdown: '#neighborhood-dropdown',
+            dropdownItem: '.neighborhood-item'
         }
     };
 
     // State
     let isScrolled = false;
     let placesService = null;
+    let geocoder = null;
 
     /**
      * Handles the navbar scroll effect using requestAnimationFrame
@@ -47,7 +51,6 @@ const MochaApp = (() => {
             placesService = new google.maps.places.PlacesService(dummyDiv);
         }
 
-        // Use a smaller radius for neighborhoods to keep results local
         const radius = isNeighborhood ? '1500' : '3000';
 
         const request = {
@@ -59,7 +62,6 @@ const MochaApp = (() => {
 
         placesService.nearbySearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
-                // Filter results with rating > 3.8
                 const filteredResults = results.filter(place => place.rating && place.rating >= 3.8);
                 
                 const event = new CustomEvent('cafesFound', {
@@ -78,33 +80,52 @@ const MochaApp = (() => {
                 window.dispatchEvent(event);
             } else {
                 console.warn('Google Places search failed:', status);
-                // Dispatch empty results if none found
                 window.dispatchEvent(new CustomEvent('cafesFound', { detail: { cafes: [] } }));
             }
         });
     };
 
     /**
-     * Initializes Google Places Autocomplete
+     * Geocodes a string address and triggers search
+     */
+    const searchByAddress = (address) => {
+        if (!geocoder) geocoder = new google.maps.Geocoder();
+
+        geocoder.geocode({ address: address }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                const loc = results[0].geometry.location;
+                const lat = loc.lat();
+                const lng = loc.lng();
+
+                window.dispatchEvent(new CustomEvent('locationSelected', {
+                    detail: { lat, lng, name: address.split(',')[0] }
+                }));
+
+                searchNearbyCafes(lat, lng, true);
+            }
+        });
+    };
+
+    /**
+     * Initializes Google Places Autocomplete and Neighborhood Dropdown
      */
     const initLocationSearch = () => {
         const searchInput = document.querySelector(CONFIG.selectors.locationSearch);
+        const dropdown = document.querySelector(CONFIG.selectors.dropdown);
         if (!searchInput || typeof google === 'undefined') return;
 
+        // 1. Google Autocomplete
         const autocomplete = new google.maps.places.Autocomplete(searchInput, {
-            types: ['geocode'], // Allows neighborhoods (sublocality) and addresses
+            types: ['geocode'],
             componentRestrictions: { country: 'br' }
         });
 
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
-            
             if (!place.geometry || !place.geometry.location) return;
 
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
-            
-            // Check if the selected place is a neighborhood or specific locality
             const isNeighborhood = place.types.includes('sublocality') || place.types.includes('neighborhood');
 
             window.dispatchEvent(new CustomEvent('locationSelected', {
@@ -112,6 +133,29 @@ const MochaApp = (() => {
             }));
 
             searchNearbyCafes(lat, lng, isNeighborhood);
+            dropdown.classList.remove(CONFIG.classes.active);
+        });
+
+        // 2. Dropdown Logic
+        searchInput.addEventListener('focus', () => {
+            dropdown.classList.add(CONFIG.classes.active);
+        });
+
+        // Use mousedown instead of click to trigger before blur
+        document.addEventListener('mousedown', (e) => {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove(CONFIG.classes.active);
+            }
+        });
+
+        const items = dropdown.querySelectorAll(CONFIG.selectors.dropdownItem);
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+                const val = item.getAttribute('data-val');
+                searchInput.value = item.innerText;
+                searchByAddress(val);
+                dropdown.classList.remove(CONFIG.classes.active);
+            });
         });
     };
 
